@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 
 // 管理员中间件
 const isAdmin = async (req, res, next) => {
-    if (!req.user || !['吕浩博'].includes(req.user.realName)) {
+    if (!req.user || req.user.realName !== '吕浩博') {
         return res.status(403).render('error', {
             message: '权限不足',
             error: '只有管理员可以访问此页面'

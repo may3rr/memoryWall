@@ -1,10 +1,27 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
-const allowedNames = [
-    '吕浩博', '王天祥', '谢浩然', '张晨峰', 
-    '郭炜坤', '杜浩楠', '郑天豪', '韦一博','王依','刘洋'
-];
+// 读取用户列表文件
+const getUsersList = () => {
+    try {
+        const usersFile = path.join(__dirname, '..', 'users.txt');
+        const content = fs.readFileSync(usersFile, 'utf8');
+        return content.split('\n')
+            .map(line => line.trim())
+            .filter(line => line && !line.startsWith('#'));
+    } catch (error) {
+        console.error('无法读取用户列表文件，使用示例文件');
+        const exampleFile = path.join(__dirname, '..', 'users.example.txt');
+        const content = fs.readFileSync(exampleFile, 'utf8');
+        return content.split('\n')
+            .map(line => line.trim())
+            .filter(line => line && !line.startsWith('#'));
+    }
+};
+
+const allowedNames = getUsersList();
 
 const userSchema = new mongoose.Schema({
     username: {

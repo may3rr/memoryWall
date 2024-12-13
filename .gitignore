@@ -1,3 +1,6 @@
+# 用户名配置
+users.txt
+
 # 依赖目录
 node_modules/
 
@@ -33,3 +36,4 @@ Thumbs.db
 
 # 上传文件临时目录
 uploads/
+users.example.txt
