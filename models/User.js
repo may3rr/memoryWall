@@ -1,23 +1,25 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
 
-// 读取用户列表文件
+// 从环境变量或文件获取用户列表
 const getUsersList = () => {
+    // 首先尝试从环境变量获取
+    if (process.env.ALLOWED_USERS) {
+        return process.env.ALLOWED_USERS.split(',').map(name => name.trim());
+    }
+    
+    // 如果环境变量不存在，则从文件读取
     try {
+        const fs = require('fs');
+        const path = require('path');
         const usersFile = path.join(__dirname, '..', 'users.txt');
         const content = fs.readFileSync(usersFile, 'utf8');
         return content.split('\n')
             .map(line => line.trim())
             .filter(line => line && !line.startsWith('#'));
     } catch (error) {
-        console.error('无法读取用户列表文件，使用示例文件');
-        const exampleFile = path.join(__dirname, '..', 'users.example.txt');
-        const content = fs.readFileSync(exampleFile, 'utf8');
-        return content.split('\n')
-            .map(line => line.trim())
-            .filter(line => line && !line.startsWith('#'));
+        console.error('无法读取用户列表');
+        return ['用户1', '用户2', '用户3']; // 默认用户列表
     }
 };
 
