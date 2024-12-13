@@ -1,0 +1,34 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "app.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/css/(.*)",
+        "headers": { "cache-control": "public, max-age=3600" },
+        "continue": true
+      },
+      {
+        "src": "/js/(.*)",
+        "headers": { "cache-control": "public, max-age=3600" },
+        "continue": true
+      },
+      {
+        "src": "/images/(.*)",
+        "headers": { "cache-control": "public, max-age=3600" },
+        "continue": true
+      },
+      {
+        "handle": "filesystem"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "app.js"
+      }
+    ]
+  }
+  

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记忆墙</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3B82F6;
+            --primary-hover: #2563EB;
+            --danger-color: #EF4444;
+            --danger-hover: #DC2626;
+            --success-color: #10B981;
+            --success-hover: #059669;
+            --background-color: #F3F4F6;
+            --card-background: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 上传表单样式 */
+        .upload-form {
+            background-color: var(--card-background);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 40px;
+        }
+
+        .upload-form h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* 文件上传按钮样式 */
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-container input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* 图片预览样式 */
+        .image-preview {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .preview-container {
+            position: relative;
+            max-width: 300px;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .delete-preview {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .delete-preview:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        /* 记忆卡片样式 */
+        .memories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .memory-card {
+            background-color: var(--card-background);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .memory-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .delete-memory {
+            background-color: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .delete-memory:hover {
+            background-color: var(--danger-color);
+            transform: scale(1.1);
+        }
+
+        .memory-image-container {
+            position: relative;
+            padding-top: 75%; /* 4:3 宽高比 */
+            overflow: hidden;
+        }
+
+        .memory-card img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .memory-card img:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-content {
+            padding: 20px;
+        }
+
+        .memory-description {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .memory-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* 评论区样式 */
+        .comments-section {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background-color: #FAFAFA;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .comment-list {
+            margin-top: 20px;
+        }
+
+        .comment-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comment-content {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .comment-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* 分页导航样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 40px;
+        }
+
+        .pagination a {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background-color: var(--card-background);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* 页脚样式 */
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 60px;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        .memory-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .fadeOut {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        /* 文件上传区域样式 */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            background-color: var(--background-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* 图片预览区域样式 */
+        .image-preview {
+            margin-top: 20px;
+            position: relative;
+            display: none;
+        }
+
+        .preview-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .preview-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-delete {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .preview-delete:hover {
+            background-color: var(--danger-color);
+            transform: scale(1.1);
+        }
+
+        /* 文件输入框隐藏 */
+        .file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <div class="container">
+        <div class="upload-form">
+            <h2>✨ 欢迎<%= user ? user.username : '访客' %>来到纪念墙~</h2>
+            <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="form-group">
+                    <label for="description">📝 描述你的记忆：</label>
+                    <textarea 
+                        name="description" 
+                        id="description" 
+                        placeholder="写下这一刻的感想..."
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <input 
+                        type="file" 
+                        name="image" 
+                        id="image" 
+                        accept="image/*" 
+                        class="file-input"
+                        onchange="handleImageSelect(this)"
+                        required>
+                    <div class="upload-area" onclick="document.getElementById('image').click()" id="dropZone">
+                        <div class="upload-icon">📸</div>
+                        <div class="upload-text">点击或拖放图片到这里</div>
+                        <div class="upload-hint">支持 JPG、PNG 格式，最大 10MB</div>
+                    </div>
+                    <div id="imagePreview" class="image-preview">
+                        <div class="preview-container">
+                            <img id="preview" src="" alt="预览图片">
+                            <div class="preview-actions">
+                                <button type="button" class="preview-delete" onclick="removePreview()">✖</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                    <span>分享记忆</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="memories-grid">
+            <% memories.forEach(memory => { %>
+                <div class="memory-card">
+                    <div class="memory-image-container">
+                        <div class="memory-actions">
+                            <button 
+                                class="delete-memory" 
+                                onclick="deleteMemory('<%= memory._id %>', this)"
+                                title="删除这个记忆">
+                                ✖
+                            </button>
+                        </div>
+                        <img src="<%= memory.imageUrl %>" alt="记忆图片" loading="lazy" onclick="toggleComments('<%= memory._id %>')">
+                    </div>
+                    <div class="memory-content">
+                        <p class="memory-description"><%= memory.description %></p>
+                        <div class="memory-meta">
+                            <span>📅 <%= memory.createdAt.toLocaleDateString('zh-CN', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            }) %></span>
+                            <span class="uploader">👤 <%= memory.user ? memory.user.username : '未知用户' %></span>
+                        </div>
+                    </div>
+                    <div class="comments-section" id="comments-<%= memory._id %>">
+                        <form class="comment-form" onsubmit="submitComment(event, '<%= memory._id %>')">
+                            <textarea 
+                                name="comment" 
+                                placeholder="写下你的评论..." 
+                                required></textarea>
+                            <button type="submit" class="btn btn-primary">发表评论</button>
+                        </form>
+                        <ul class="comment-list" id="comment-list-<%= memory._id %>">
+                            <% if (memory.comments && memory.comments.length > 0) { %>
+                                <% memory.comments.forEach(comment => { %>
+                                    <li class="comment-item">
+                                        <div class="comment-content"><%= comment.content %></div>
+                                        <div class="comment-meta">
+                                            <%= comment.user ? comment.user.username : '访客' %> · 
+                                            <%= comment.createdAt.toLocaleDateString('zh-CN') %>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+        <div class="pagination">
+            <% if (hasPrevPage) { %>
+                <a href="/?page=<%= currentPage - 1 %>">← 上一页</a>
+            <% } %>
+            
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="/?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+            
+            <% if (hasNextPage) { %>
+                <a href="/?page=<%= currentPage + 1 %>">下一页 →</a>
+            <% } %>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 记忆墙. All rights reserved to jackielyu</p>
+    </footer>
+
+    <script>
+        // 图片压缩配置
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+        const MIME_TYPE = "image/jpeg";
+        const QUALITY = 0.8;
+
+        // 图片上传和预览相关的代码
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('preview');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // 拖放功能
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleImageSelect(imageInput, files[0]);
+            }
+        }
+
+        function handleImageSelect(input, droppedFile = null) {
+            const file = droppedFile || input.files[0];
+            if (!file) return;
+
+            // 检查文件大小
+            if (file.size > 10 * 1024 * 1024) {
+                alert('图片大小不能超过10MB');
+                removePreview();
+                return;
+            }
+
+            // 检查文件类型
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件');
+                removePreview();
+                return;
+            }
+
+            // 如果是拖放的文件，需要手动设置到input
+            if (droppedFile) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                input.files = dataTransfer.files;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // 压缩图片
+                    const [newWidth, newHeight] = calculateSize(img, MAX_WIDTH, MAX_HEIGHT);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = newWidth;
+                    canvas.height = newHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                    // 显示预览
+                    previewImg.src = canvas.toDataURL(MIME_TYPE, QUALITY);
+                    imagePreview.style.display = 'block';
+                    dropZone.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function calculateSize(img, maxWidth, maxHeight) {
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > height) {
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+            }
+            return [width, height];
+        }
+
+        function removePreview() {
+            imageInput.value = '';
+            imagePreview.style.display = 'none';
+            dropZone.style.display = 'block';
+            submitBtn.disabled = true;
+        }
+
+        // 表单提交前验证
+        uploadForm.addEventListener('submit', function(e) {
+            if (!imageInput.files || !imageInput.files[0]) {
+                e.preventDefault();
+                alert('请选择一张图片');
+                return;
+            }
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>上传中...</span>';
+        });
+
+        async function deleteMemory(id, button) {
+            if (!confirm('确定要删除这个记忆吗？')) return;
+            
+            try {
+                const response = await fetch(`/memory/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    const card = button.closest('.memory-card');
+                    card.style.animation = 'fadeOut 0.3s ease-out forwards';
+                    setTimeout(() => card.remove(), 300);
+                } else {
+                    alert('删除失败，请重试');
+                }
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败，请重试');
+            }
+        }
+
+        function toggleComments(memoryId) {
+            const commentsSection = document.getElementById(`comments-${memoryId}`);
+            commentsSection.classList.toggle('active');
+        }
+
+        async function submitComment(event, memoryId) {
+            event.preventDefault();
+            const form = event.target;
+            const textarea = form.querySelector('textarea');
+            const content = textarea.value.trim();
+
+            if (!content) return;
+
+            try {
+                const response = await fetch(`/memory/${memoryId}/comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (response.ok) {
+                    const comment = await response.json();
+                    const commentList = document.getElementById(`comment-list-${memoryId}`);
+                    
+                    const li = document.createElement('li');
+                    li.className = 'comment-item';
+                    li.innerHTML = `
+                        <div class="comment-content">${comment.content}</div>
+                        <div class="comment-meta">
+                            ${comment.user ? comment.user.username : '访客'} · 
+                            ${new Date(comment.createdAt).toLocaleDateString('zh-CN')}
+                        </div>
+                    `;
+                    
+                    commentList.insertBefore(li, commentList.firstChild);
+                    textarea.value = '';
+                } else {
+                    alert('评论发送失败，请重试');
+                }
+            } catch (error) {
+                console.error('评论发送失败:', error);
+                alert('评论发送失败，请重试');
+            }
+        }
+    </script>
+</body>
+</html>

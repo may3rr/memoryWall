@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记忆墙 - 分享你的精彩时刻</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <h1>✨ 记忆墙</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/"><i class="fas fa-home"></i> 首页</a>
+                <% if (locals.user) { %>
+                    <span class="user-info">
+                        <i class="fas fa-user"></i> <%= user.realName %>
+                    </span>
+                    <a href="/logout" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> 退出
+                    </a>
+                <% } %>
+            </div>
+        </nav>
+    </header>
+</body>
+</html> 

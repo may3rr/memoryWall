@@ -1,0 +1,338 @@
+<%- include('partials/header') %>
+
+<style>
+.admin-container {
+    max-width: 1200px;
+    margin: 100px auto 0;
+    padding: 2rem;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.users-table {
+    width: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.users-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.users-table th {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    font-weight: 500;
+}
+
+.users-table tr:last-child td {
+    border-bottom: none;
+}
+
+.users-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.delete-btn {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+}
+
+.no-users {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.timestamp {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.reset-btn {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(243, 156, 18, 0.3);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.modal-header h2 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.modal-body {
+    margin-bottom: 1.5rem;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.modal-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn.confirm {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.modal-btn.cancel {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+</style>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>✨ 用户管理</h1>
+    </div>
+    
+    <div class="users-table">
+        <% if (users && users.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>真实姓名</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(user => { %>
+                        <tr>
+                            <td><%= user.username %></td>
+                            <td><%= user.realName %></td>
+                            <td class="timestamp">
+                                <%= new Date(user.createdAt).toLocaleString('zh-CN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) %>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button 
+                                        class="reset-btn" 
+                                        onclick="showResetPasswordModal('<%= user._id %>', '<%= user.username %>')"
+                                        <%= user.realName === '吕浩博' ? 'disabled' : '' %>
+                                    >
+                                        重置密码
+                                    </button>
+                                    <button 
+                                        class="delete-btn" 
+                                        onclick="deleteUser('<%= user._id %>', this)"
+                                        <%= user.realName === '吕浩博' ? 'disabled' : '' %>
+                                    >
+                                        删除
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div class="no-users">
+                暂无用户注册
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- 重置密码模态框 -->
+<div id="resetPasswordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>重置密码</h2>
+            <p>正在为用户 <span id="resetUsername"></span> 重置密码</p>
+        </div>
+        <div class="modal-body">
+            <input 
+                type="password" 
+                id="newPassword" 
+                placeholder="请输入新密码（至少6个字符）" 
+                minlength="6"
+            >
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="hideResetPasswordModal()">取消</button>
+            <button class="modal-btn confirm" onclick="resetPassword()">确认重置</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentUserId = null;
+
+async function deleteUser(userId, button) {
+    if (!confirm('确定要删除这个用户吗？此操作不可撤销。')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/admin/users/${userId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            const row = button.closest('tr');
+            row.style.animation = 'fadeOut 0.3s ease-out forwards';
+            setTimeout(() => row.remove(), 300);
+        } else {
+            const data = await response.json();
+            alert(data.message || '删除失败');
+        }
+    } catch (error) {
+        console.error('删除失败:', error);
+        alert('删除失败，请重试');
+    }
+}
+
+function showResetPasswordModal(userId, username) {
+    currentUserId = userId;
+    document.getElementById('resetUsername').textContent = username;
+    document.getElementById('resetPasswordModal').style.display = 'flex';
+}
+
+function hideResetPasswordModal() {
+    document.getElementById('resetPasswordModal').style.display = 'none';
+    document.getElementById('newPassword').value = '';
+    currentUserId = null;
+}
+
+async function resetPassword() {
+    const newPassword = document.getElementById('newPassword').value;
+    if (!newPassword || newPassword.length < 6) {
+        alert('新密码至少需要6个字符');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/users/${currentUserId}/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ newPassword })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('密码重置成功');
+            hideResetPasswordModal();
+        } else {
+            alert(data.message || '密码重置失败');
+        }
+    } catch (error) {
+        console.error('密码重置失败:', error);
+        alert('密码重置失败，请重试');
+    }
+}
+
+// 点击模态框外部关闭
+window.onclick = function(event) {
+    const modal = document.getElementById('resetPasswordModal');
+    if (event.target === modal) {
+        hideResetPasswordModal();
+    }
+}
+</script>
+
+<%- include('partials/footer') %> 

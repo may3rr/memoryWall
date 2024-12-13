@@ -1,0 +1,18 @@
+.uploader {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+}
+
+.header h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #333;
+} 

@@ -1,0 +1,18 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    <% if (isAuthenticated) { %>
+      <span class="navbar-text mr-3">
+        欢迎，<%= user.username %>
+      </span>
+    <% } %>
+    
+    <div class="navbar-nav ml-auto">
+      <% if (isAuthenticated) { %>
+        <a class="nav-link" href="/auth/logout">退出</a>
+      <% } else { %>
+        <a class="nav-link" href="/auth/login">登录</a>
+        <a class="nav-link" href="/auth/register">注册</a>
+      <% } %>
+    </div>
+  </div>
+</nav> 
