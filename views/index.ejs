@@ -475,49 +475,93 @@
         .file-input {
             display: none;
         }
+
+        /* 添加新的发布区域样式 */
+        .tweet-form {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .tweet-form textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            resize: none;
+            margin-bottom: 12px;
+        }
+
+        .tweet-form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tweet-form-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .image-upload-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-upload-btn:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
     </style>
 </head>
 <body>
     <%- include('partials/header') %>
 
     <div class="container">
-        <div class="upload-form">
-            <h2>✨ 欢迎<%= user ? user.username : '访客' %>来到纪念墙~</h2>
+        <div class="tweet-form">
             <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
-                <div class="form-group">
-                    <label for="description">📝 描述你的记忆：</label>
-                    <textarea 
-                        name="description" 
-                        id="description" 
-                        placeholder="写下这一刻的感想..."
-                        required></textarea>
-                </div>
-                <div class="form-group">
-                    <input 
-                        type="file" 
-                        name="image" 
-                        id="image" 
-                        accept="image/*" 
-                        class="file-input"
-                        onchange="handleImageSelect(this)"
-                        required>
-                    <div class="upload-area" onclick="document.getElementById('image').click()" id="dropZone">
-                        <div class="upload-icon">📸</div>
-                        <div class="upload-text">点击或拖放图片到这里</div>
-                        <div class="upload-hint">支持 JPG、PNG 格式，最大 10MB</div>
+                <textarea 
+                    name="description" 
+                    placeholder="✨ 欢迎<%= user ? user.username : '访客' %>！写下这一刻的感想..."
+                    required></textarea>
+                <div class="tweet-form-footer">
+                    <div class="tweet-form-actions">
+                        <input 
+                            type="file" 
+                            name="image" 
+                            id="image" 
+                            accept="image/*" 
+                            class="file-input"
+                            onchange="handleImageSelect(this)"
+                            required>
+                        <button type="button" class="image-upload-btn" onclick="document.getElementById('image').click()">
+                            📸 添加照片
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                            发布
+                        </button>
                     </div>
-                    <div id="imagePreview" class="image-preview">
-                        <div class="preview-container">
-                            <img id="preview" src="" alt="预览图片">
-                            <div class="preview-actions">
-                                <button type="button" class="preview-delete" onclick="removePreview()">✖</button>
-                            </div>
+                    <div class="upload-hint">支持 JPG、PNG 格式，最大 10MB</div>
+                </div>
+                <div id="imagePreview" class="image-preview">
+                    <div class="preview-container">
+                        <img id="preview" src="" alt="预览图片">
+                        <div class="preview-actions">
+                            <button type="button" class="preview-delete" onclick="removePreview()">✖</button>
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
-                    <span>分享记忆</span>
-                </button>
             </form>
         </div>
 
@@ -735,8 +779,11 @@
             if (!confirm('确定要删除这个记忆吗？')) return;
             
             try {
-                const response = await fetch(`/memory/${id}`, {
-                    method: 'DELETE'
+                const response = await fetch(`/memories/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
                 
                 if (response.ok) {
@@ -744,7 +791,8 @@
                     card.style.animation = 'fadeOut 0.3s ease-out forwards';
                     setTimeout(() => card.remove(), 300);
                 } else {
-                    alert('删除失败，请重试');
+                    const data = await response.json();
+                    alert(data.message || '删除失败，请重试');
                 }
             } catch (error) {
                 console.error('删除失败:', error);

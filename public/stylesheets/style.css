@@ -15,4 +15,68 @@
     text-align: center;
     margin: 20px 0;
     color: #333;
-} 
+}
+
+/* 添加新的发布区域样式 */
+.tweet-form {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+}
+
+.tweet-form textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    resize: none;
+    margin-bottom: 12px;
+}
+
+.tweet-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tweet-form-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.image-upload-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.image-upload-btn:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: var(--primary-color);
+}
+
+.upload-hint {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+
+.btn-primary {
+    border-radius: 8px;
+}
+ 

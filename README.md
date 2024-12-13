@@ -6,7 +6,6 @@
 
 <div align="center">
   <img src="demo1.png" alt="主页展示" width="600px" />
-  <img src="demo2.png" alt="帖子列表展示" width="600px" />
   <img src="demo3.png" alt="登录页面" width="600px" />
   
    [[开始使用]](#🚀-快速开始) 
